@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: refactor_ai_db
+    environment:
+      POSTGRES_USER: refactor_user
+      POSTGRES_PASSWORD: refactor_pass
+      POSTGRES_DB: refactor_ai_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U refactor_user -d refactor_ai_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: refactor_ai_backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://refactor_user:refactor_pass@db:5432/refactor_ai_db
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: refactor_ai_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_TARGET: http://backend:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
