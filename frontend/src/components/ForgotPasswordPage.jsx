@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { KeyRound, Mail, Lock, Sparkles, ArrowLeft, ShieldCheck } from 'lucide-react'
+import { KeyRound, Mail, Lock, Sparkles, ArrowLeft, ShieldCheck, Zap, Target, BarChart3 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 
@@ -46,172 +46,227 @@ export default function ForgotPasswordPage() {
         }
     }
 
+    const labelStyle = { display: 'block', fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }
+    const iconStyle = { position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', width: '1.25rem', height: '1.25rem', color: 'var(--color-text-muted)' }
+    const inputStyle = { paddingLeft: '3rem' }
+
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="auth-layout relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-[var(--color-warning)]/5 rounded-full blur-3xl" />
                 <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-[var(--color-primary)]/10 rounded-full blur-3xl" />
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-                className="w-full max-w-md relative"
-            >
-                {/* Logo header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] items-center justify-center mb-4 shadow-lg shadow-[var(--color-primary)]/25">
-                        {step === 1 ? (
-                            <KeyRound className="w-8 h-8 text-white" />
-                        ) : (
-                            <ShieldCheck className="w-8 h-8 text-white" />
-                        )}
+            {/* Hero panel — desktop only */}
+            <div className="auth-hero">
+                <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.7, ease: 'easeOut' }}
+                >
+                    <div className="auth-brand" style={{ marginBottom: '1.5rem' }}>
+                        <div className="auth-brand-icon">
+                            <Sparkles style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
+                        </div>
+                        <span className="auth-brand-name">Refactor AI</span>
                     </div>
-                    <h1 className="text-3xl font-bold gradient-text mb-2">
-                        {step === 1 ? 'Forgot Password' : 'Reset Password'}
-                    </h1>
-                    <p className="text-[var(--color-text-muted)]">
+                    <h2 className="auth-hero-tagline">
+                        {step === 1 ? 'No Worries, We Got You' : 'Almost There!'}
+                    </h2>
+                    <p className="auth-hero-sub">
                         {step === 1
-                            ? 'Enter your email to verify your account'
-                            : 'Create your new password'}
+                            ? 'It happens to the best of us. Verify your email and you\'ll be back on track in no time.'
+                            : 'Set a strong new password and get back to crafting resumes that land interviews.'}
                     </p>
-                </div>
+                    <ul className="auth-feature-list">
+                        <li>
+                            <span className="auth-feature-icon">
+                                <Target style={{ width: '1.25rem', height: '1.25rem' }} />
+                            </span>
+                            AI-powered keyword matching against job descriptions
+                        </li>
+                        <li>
+                            <span className="auth-feature-icon">
+                                <Zap style={{ width: '1.25rem', height: '1.25rem' }} />
+                            </span>
+                            Smart bullet-point rewrites tailored to each role
+                        </li>
+                        <li>
+                            <span className="auth-feature-icon">
+                                <BarChart3 style={{ width: '1.25rem', height: '1.25rem' }} />
+                            </span>
+                            Real-time match scoring to track your fit
+                        </li>
+                    </ul>
+                </motion.div>
+            </div>
 
-                {/* Steps indicator */}
-                <div className="flex items-center justify-center gap-3 mb-6">
-                    <div className={`w-8 h-1 rounded-full transition-colors ${step >= 1 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-surface-lighter)]'}`} />
-                    <div className={`w-8 h-1 rounded-full transition-colors ${step >= 2 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-surface-lighter)]'}`} />
-                </div>
-
-                {/* Form card */}
-                <div className="glass-strong rounded-2xl p-8">
-                    <AnimatePresence mode="wait">
-                        {step === 1 ? (
-                            <motion.form
-                                key="step1"
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                onSubmit={handleEmailCheck}
-                                className="space-y-5"
-                            >
-                                <div>
-                                    <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-2">
-                                        Email Address
-                                    </label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-muted)]" />
-                                        <input
-                                            id="forgot-email"
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="input-field pl-11"
-                                            placeholder="you@example.com"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="btn-primary w-full flex items-center justify-center gap-2"
-                                >
-                                    {loading ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    ) : (
-                                        <>
-                                            <Mail className="w-5 h-5" />
-                                            Verify Email
-                                        </>
-                                    )}
-                                </button>
-                            </motion.form>
-                        ) : (
-                            <motion.form
-                                key="step2"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                onSubmit={handleReset}
-                                className="space-y-5"
-                            >
-                                <div className="text-center p-3 rounded-lg bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20">
-                                    <p className="text-sm text-[var(--color-primary-light)]">
-                                        Verified: <span className="font-medium">{email}</span>
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-2">
-                                        New Password
-                                    </label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-muted)]" />
-                                        <input
-                                            id="reset-new-password"
-                                            type="password"
-                                            value={newPassword}
-                                            onChange={(e) => setNewPassword(e.target.value)}
-                                            className="input-field pl-11"
-                                            placeholder="••••••••"
-                                            required
-                                            minLength={6}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-2">
-                                        Confirm Password
-                                    </label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-muted)]" />
-                                        <input
-                                            id="reset-confirm-password"
-                                            type="password"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            className="input-field pl-11"
-                                            placeholder="••••••••"
-                                            required
-                                            minLength={6}
-                                        />
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="btn-primary w-full flex items-center justify-center gap-2"
-                                >
-                                    {loading ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    ) : (
-                                        <>
-                                            <ShieldCheck className="w-5 h-5" />
-                                            Reset Password
-                                        </>
-                                    )}
-                                </button>
-                            </motion.form>
-                        )}
-                    </AnimatePresence>
-
-                    <div className="mt-6 text-center">
-                        <Link
-                            to="/login"
-                            className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] text-sm transition-colors no-underline inline-flex items-center gap-1"
-                        >
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                            Back to Login
-                        </Link>
+            {/* Form side */}
+            <div className="auth-form-side relative">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    style={{ width: '100%', maxWidth: '28rem' }}
+                >
+                    {/* Logo header */}
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <div className="auth-brand" style={{ justifyContent: 'center', marginBottom: '1rem' }}>
+                            <div className="auth-brand-icon">
+                                <Sparkles style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
+                            </div>
+                            <span className="auth-brand-name">Refactor AI</span>
+                        </div>
+                        <h1 className="gradient-text" style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+                            {step === 1 ? 'Forgot Password' : 'Reset Password'}
+                        </h1>
+                        <p style={{ color: 'var(--color-text-muted)' }}>
+                            {step === 1
+                                ? 'Enter your email to verify your account'
+                                : 'Create your new password'}
+                        </p>
                     </div>
-                </div>
-            </motion.div>
+
+                    {/* Steps indicator */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                        <div style={{ width: '2rem', height: '0.25rem', borderRadius: '9999px', background: step >= 1 ? 'var(--color-primary)' : 'var(--color-surface-lighter)', transition: 'background 0.3s' }} />
+                        <div style={{ width: '2rem', height: '0.25rem', borderRadius: '9999px', background: step >= 2 ? 'var(--color-primary)' : 'var(--color-surface-lighter)', transition: 'background 0.3s' }} />
+                    </div>
+
+                    {/* Form card */}
+                    <div className="glass-strong rounded-2xl" style={{ padding: '1.25rem' }}>
+                        <AnimatePresence mode="wait">
+                            {step === 1 ? (
+                                <motion.form
+                                    key="step1"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    onSubmit={handleEmailCheck}
+                                    style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+                                >
+                                    <div>
+                                        <label style={labelStyle}>
+                                            Email Address
+                                        </label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Mail style={iconStyle} />
+                                            <input
+                                                id="forgot-email"
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                className="input-field"
+                                                style={inputStyle}
+                                                placeholder="you@example.com"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="btn-primary"
+                                        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                    >
+                                        {loading ? (
+                                            <div style={{ width: '1.25rem', height: '1.25rem', border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid white', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                                        ) : (
+                                            <>
+                                                <Mail style={{ width: '1.25rem', height: '1.25rem' }} />
+                                                Verify Email
+                                            </>
+                                        )}
+                                    </button>
+                                </motion.form>
+                            ) : (
+                                <motion.form
+                                    key="step2"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    onSubmit={handleReset}
+                                    style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+                                >
+                                    <div style={{ textAlign: 'center', padding: '0.75rem', borderRadius: '0.5rem', background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                                        <p style={{ fontSize: '0.875rem', color: 'var(--color-primary-light)' }}>
+                                            Verified: <span style={{ fontWeight: 500 }}>{email}</span>
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label style={labelStyle}>
+                                            New Password
+                                        </label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Lock style={iconStyle} />
+                                            <input
+                                                id="reset-new-password"
+                                                type="password"
+                                                value={newPassword}
+                                                onChange={(e) => setNewPassword(e.target.value)}
+                                                className="input-field"
+                                                style={inputStyle}
+                                                placeholder="••••••••"
+                                                required
+                                                minLength={6}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label style={labelStyle}>
+                                            Confirm Password
+                                        </label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Lock style={iconStyle} />
+                                            <input
+                                                id="reset-confirm-password"
+                                                type="password"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                className="input-field"
+                                                style={inputStyle}
+                                                placeholder="••••••••"
+                                                required
+                                                minLength={6}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="btn-primary"
+                                        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                    >
+                                        {loading ? (
+                                            <div style={{ width: '1.25rem', height: '1.25rem', border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid white', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                                        ) : (
+                                            <>
+                                                <ShieldCheck style={{ width: '1.25rem', height: '1.25rem' }} />
+                                                Reset Password
+                                            </>
+                                        )}
+                                    </button>
+                                </motion.form>
+                            )}
+                        </AnimatePresence>
+
+                        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                            <Link
+                                to="/login"
+                                style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                            >
+                                <ArrowLeft style={{ width: '0.875rem', height: '0.875rem' }} />
+                                Back to Login
+                            </Link>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
         </div>
     )
 }
