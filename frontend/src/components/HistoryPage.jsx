@@ -65,12 +65,12 @@ export default function HistoryPage() {
     }
 
     return (
-        <div className="flex-1 p-4 lg:p-6 max-w-4xl mx-auto w-full">
+        <div className="flex-1 p-6 md:p-8 lg:p-10 w-full">
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-8"
+                className="mb-10"
             >
                 <div className="flex items-center gap-3 mb-2">
                     <History className="w-7 h-7 text-[var(--color-primary-light)]" />
@@ -107,7 +107,7 @@ export default function HistoryPage() {
                         >
                             {/* Main row */}
                             <div
-                                className="p-5 flex items-center gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
+                                className="p-6 flex items-center gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
                                 onClick={() => setExpandedId(expandedId === scan.id ? null : scan.id)}
                             >
                                 {/* Score badge */}

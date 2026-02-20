@@ -121,29 +121,29 @@ export default function Workspace() {
     }
 
     return (
-        <div className="flex-1 p-4 lg:p-6 max-w-7xl mx-auto w-full">
+        <div className="flex-1 p-6 md:p-8 lg:p-10 w-full">
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-6"
+                className="text-center mb-8 lg:mb-10"
             >
-                <h1 className="text-2xl lg:text-3xl font-bold gradient-text mb-2">Resume Mirror</h1>
+                <h1 className="text-2xl lg:text-3xl font-bold gradient-text mb-3">Resume Mirror</h1>
                 <p className="text-[var(--color-text-muted)] text-sm">
                     Paste a job description and your resume side by side — discover the keyword gap
                 </p>
             </motion.div>
 
             {/* Split-screen panes */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-10">
                 {/* Left Pane — Job Description */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass rounded-2xl p-5 flex flex-col"
+                    className="glass rounded-2xl p-6 lg:p-8 flex flex-col"
                 >
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2.5 mb-5">
                         <Briefcase className="w-5 h-5 text-[var(--color-primary-light)]" />
                         <h2 className="text-base font-semibold text-[var(--color-text)]">
                             Job Description
@@ -152,14 +152,14 @@ export default function Workspace() {
 
                     {/* Show highlighted overlay when results exist, otherwise show textarea */}
                     {result ? (
-                        <div className="flex-1 min-h-[300px] lg:min-h-[400px] p-3 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] overflow-y-auto text-sm leading-relaxed whitespace-pre-wrap">
+                        <div className="flex-1 min-h-[320px] lg:min-h-[420px] p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] overflow-y-auto text-sm leading-relaxed whitespace-pre-wrap">
                             {highlightJD()}
                         </div>
                     ) : (
                         <textarea
                             value={jobDescription}
                             onChange={(e) => setJobDescription(e.target.value)}
-                            className="input-field flex-1 min-h-[300px] lg:min-h-[400px] resize-none text-sm leading-relaxed"
+                            className="input-field flex-1 min-h-[320px] lg:min-h-[420px] resize-none text-sm leading-relaxed"
                             placeholder="Paste the full job description here...&#10;&#10;Example:&#10;We are looking for a Software Engineer with experience in Python, Docker, Kubernetes, and FastAPI..."
                         />
                     )}
@@ -170,9 +170,9 @@ export default function Workspace() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="glass rounded-2xl p-5 flex flex-col"
+                    className="glass rounded-2xl p-6 lg:p-8 flex flex-col"
                 >
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
                         <div className="flex items-center gap-2">
                             <FileText className="w-5 h-5 text-[var(--color-accent)]" />
                             <h2 className="text-base font-semibold text-[var(--color-text)]">
@@ -181,12 +181,12 @@ export default function Workspace() {
                         </div>
 
                         {/* Toggle between text and file */}
-                        <div className="flex bg-[var(--color-surface)] rounded-lg p-0.5 border border-[var(--color-border)]">
+                        <div className="flex bg-[var(--color-surface)] rounded-lg p-1 border border-[var(--color-border)] shrink-0">
                             <button
                                 onClick={() => setInputMode('text')}
-                                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer border-none ${inputMode === 'text'
-                                        ? 'bg-[var(--color-primary)] text-white'
-                                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] bg-transparent'
+                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-medium transition-all cursor-pointer border-none ${inputMode === 'text'
+                                    ? 'bg-[var(--color-primary)] text-white'
+                                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] bg-transparent'
                                     }`}
                             >
                                 <Type className="w-3.5 h-3.5" />
@@ -194,9 +194,9 @@ export default function Workspace() {
                             </button>
                             <button
                                 onClick={() => setInputMode('file')}
-                                className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer border-none ${inputMode === 'file'
-                                        ? 'bg-[var(--color-primary)] text-white'
-                                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] bg-transparent'
+                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-medium transition-all cursor-pointer border-none ${inputMode === 'file'
+                                    ? 'bg-[var(--color-primary)] text-white'
+                                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] bg-transparent'
                                     }`}
                             >
                                 <FileUp className="w-3.5 h-3.5" />
@@ -209,15 +209,15 @@ export default function Workspace() {
                         <textarea
                             value={resumeText}
                             onChange={(e) => setResumeText(e.target.value)}
-                            className="input-field flex-1 min-h-[300px] lg:min-h-[400px] resize-none text-sm leading-relaxed"
+                            className="input-field flex-1 min-h-[320px] lg:min-h-[420px] resize-none text-sm leading-relaxed"
                             placeholder="Paste your resume text here...&#10;&#10;Example:&#10;• Built backend APIs using Django and Flask&#10;• Managed deployments on AWS EC2 instances&#10;• Implemented CI/CD pipelines..."
                         />
                     ) : (
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className={`flex-1 min-h-[300px] lg:min-h-[400px] rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-4 ${fileName
-                                    ? 'border-[var(--color-success)]/30 bg-[var(--color-success)]/5'
-                                    : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5'
+                            className={`flex-1 min-h-[320px] lg:min-h-[420px] rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-4 ${fileName
+                                ? 'border-[var(--color-success)]/30 bg-[var(--color-success)]/5'
+                                : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5'
                                 }`}
                         >
                             <input
@@ -262,12 +262,12 @@ export default function Workspace() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="flex justify-center mb-8"
+                className="flex justify-center mb-12 mt-2"
             >
                 <button
                     onClick={handleAnalyze}
                     disabled={analyzing}
-                    className="btn-primary px-8 py-3.5 text-base flex items-center gap-2.5 animate-pulse-glow"
+                    className="btn-primary px-10 py-4 text-base flex items-center gap-3 animate-pulse-glow"
                 >
                     {analyzing ? (
                         <>
@@ -293,14 +293,14 @@ export default function Workspace() {
                         className="space-y-6"
                     >
                         {/* Match meter + Keywords */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
                             {/* Match Meter */}
-                            <div className="glass rounded-2xl p-6 flex items-center justify-center">
+                            <div className="glass rounded-2xl p-6 lg:p-8 flex items-center justify-center">
                                 <MatchMeter score={result.match_score} />
                             </div>
 
                             {/* Keywords */}
-                            <div className="glass rounded-2xl p-6 md:col-span-2">
+                            <div className="glass rounded-2xl p-6 lg:p-8 md:col-span-2">
                                 <KeywordChips
                                     missing={result.missing_keywords}
                                     matched={result.matched_keywords}
@@ -310,7 +310,7 @@ export default function Workspace() {
                         </div>
 
                         {/* Tip */}
-                        <div className="glass rounded-xl p-4 flex items-start gap-3">
+                        <div className="glass rounded-xl p-5 flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-[var(--color-primary-light)] shrink-0 mt-0.5" />
                             <p className="text-sm text-[var(--color-text-muted)]">
                                 <span className="font-medium text-[var(--color-text)]">Tip:</span> Click on any{' '}
