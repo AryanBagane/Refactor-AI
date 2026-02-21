@@ -1,24 +1,27 @@
-import google.generativeai as genai
+import httpx
 from app.core.config import get_settings
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 settings = get_settings()
 
-# Configure Gemini
-if settings.GEMINI_API_KEY:
-    genai.configure(api_key=settings.GEMINI_API_KEY)
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+# Primary and fallback models from OpenRouter
+MODELS = [
+    "google/gemma-3-12b-it:free"
+]
 
 
 async def rewrite_bullet(original_bullet: str, keyword: str, jd_context: str = "") -> str:
     """
-    Use Gemini 1.5 Flash to rewrite a resume bullet point
+    Use OpenRouter (Gemini/Llama) to rewrite a resume bullet point
     incorporating a missing keyword using the STAR method.
     """
-    if not settings.GEMINI_API_KEY:
+    if not settings.OPENROUTER_API_KEY or settings.OPENROUTER_API_KEY == "your_openrouter_api_key_here":
         return (
             f"{original_bullet} — leveraging {keyword} to drive measurable results. "
-            "(Note: Set GEMINI_API_KEY in .env for AI-powered rewrites.)"
+            "(Note: Set OPENROUTER_API_KEY in .env for AI-powered rewrites.)"
         )
 
     prompt = f"""You are an expert resume writer specializing in ATS optimization.
@@ -38,14 +41,55 @@ Rewrite this into a single, high-impact, STAR-method bullet point that:
 
 Return ONLY the rewritten bullet point, nothing else."""
 
-    try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
-        rewritten = response.text.strip().strip('"').strip("•").strip("-").strip()
-        logger.info(f"AI rewrite successful for keyword: {keyword}")
-        return rewritten
-    except Exception as e:
-        logger.error(f"Gemini API error: {e}")
-        return (
-            f"{original_bullet} — utilizing {keyword} to optimize performance and deliver results."
-        )
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        for model_name in MODELS:
+            try:
+                response = await client.post(
+                    url=OPENROUTER_URL,
+                    headers={
+                        "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": "https://github.com/AryanBagane/Refactor-AI",
+                        "X-Title": "Refactor AI",
+                    },
+                    json={
+                        "model": model_name,
+                        "messages": [
+                            {"role": "user", "content": prompt}
+                        ],
+                    },
+                )
+
+                if response.status_code == 200:
+                    data = response.json()
+                    logger.debug(f"OpenRouter Raw Response: {data}")
+                    
+                    if not data.get("choices") or not data["choices"][0].get("message"):
+                        logger.error(f"OpenRouter returned unexpected structure: {data}")
+                        continue
+
+                    rewritten = data["choices"][0]["message"].get("content", "").strip()
+                    logger.info(f"AI content before cleaning: '{rewritten}'")
+                    
+                    # Clean up common AI prefixes
+                    rewritten = rewritten.strip('"').strip("•").strip("-").strip()
+                    
+                    if not rewritten:
+                        logger.warning(f"Model {model_name} returned empty content, trying next...")
+                        continue
+
+                    logger.info(f"AI rewrite successful for keyword: {keyword} (model: {model_name}) - result: '{rewritten}'")
+                    return rewritten
+                
+                # Handle rate limits or other API errors by trying the next model
+                logger.warning(f"OpenRouter error ({model_name}): {response.status_code} {response.text}")
+                continue
+
+            except Exception as e:
+                logger.error(f"OpenRouter integration error ({model_name}): {e}")
+                continue
+
+    return (
+        f"{original_bullet} — utilizing {keyword} to optimize performance and deliver results."
+    )
+

@@ -3,11 +3,12 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     Sparkles, FileText, History, LogOut,
-    Menu, X, ChevronRight
+    Menu, X, ChevronRight, BarChart3
 } from 'lucide-react'
 
 const navItems = [
     { path: '/', label: 'Workspace', icon: FileText },
+    { path: '/match-score', label: 'Match Score', icon: BarChart3 },
     { path: '/history', label: 'History', icon: History },
 ]
 

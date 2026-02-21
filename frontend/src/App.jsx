@@ -5,6 +5,7 @@ import LoginPage from './components/LoginPage'
 import SignupPage from './components/SignupPage'
 import ForgotPasswordPage from './components/ForgotPasswordPage'
 import Workspace from './components/Workspace'
+import MatchScorePage from './components/MatchScorePage'
 import HistoryPage from './components/HistoryPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -43,6 +44,14 @@ export default function App() {
                     element={
                         <ProtectedRoute>
                             <Workspace />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/match-score"
+                    element={
+                        <ProtectedRoute>
+                            <MatchScorePage />
                         </ProtectedRoute>
                     }
                 />

@@ -1,14 +1,12 @@
 import { useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
-    Upload, FileText, Search, Zap, AlertCircle,
-    Briefcase, FileUp, Type, ChevronDown
+    Upload, FileText, Zap,
+    Briefcase, FileUp, Type
 } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
-import MatchMeter from './MatchMeter'
-import KeywordChips from './KeywordChips'
-import RewriteModal from './RewriteModal'
 
 export default function Workspace() {
     const [jobDescription, setJobDescription] = useState('')
@@ -17,11 +15,9 @@ export default function Workspace() {
     const [resumeFile, setResumeFile] = useState(null)
     const [inputMode, setInputMode] = useState('text') // 'text' or 'file'
     const [analyzing, setAnalyzing] = useState(false)
-    const [result, setResult] = useState(null)
 
-    // Rewrite modal state
-    const [rewriteOpen, setRewriteOpen] = useState(false)
-    const [selectedKeyword, setSelectedKeyword] = useState('')
+    const navigate = useNavigate()
+
 
     const fileInputRef = useRef(null)
 
@@ -57,7 +53,6 @@ export default function Workspace() {
         }
 
         setAnalyzing(true)
-        setResult(null)
 
         try {
             const formData = new FormData()
@@ -73,8 +68,8 @@ export default function Workspace() {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
 
-            setResult(response.data)
             toast.success(`Analysis complete! Match: ${response.data.match_score}%`)
+            navigate('/match-score', { state: { result: response.data, jobDescription } })
         } catch (error) {
             const msg = error.response?.data?.detail || 'Analysis failed'
             toast.error(msg)
@@ -83,86 +78,46 @@ export default function Workspace() {
         }
     }
 
-    const handleMissingClick = (keyword) => {
-        setSelectedKeyword(keyword)
-        setRewriteOpen(true)
-    }
 
-    // Highlighting logic for JD text
-    const highlightJD = () => {
-        if (!result || !jobDescription) return jobDescription
-
-        const { missing_keywords = [], matched_keywords = [] } = result
-        const allKeywords = [...missing_keywords, ...matched_keywords]
-        if (allKeywords.length === 0) return jobDescription
-
-        const escaped = allKeywords.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-        const regex = new RegExp(`\\b(${escaped.join('|')})\\b`, 'gi')
-
-        const parts = jobDescription.split(regex)
-        return parts.map((part, i) => {
-            const lower = part.toLowerCase()
-            if (missing_keywords.map((k) => k.toLowerCase()).includes(lower)) {
-                return (
-                    <span key={i} className="bg-[var(--color-danger)]/20 text-[var(--color-danger)] px-0.5 rounded font-medium">
-                        {part}
-                    </span>
-                )
-            }
-            if (matched_keywords.map((k) => k.toLowerCase()).includes(lower)) {
-                return (
-                    <span key={i} className="bg-[var(--color-success)]/20 text-[var(--color-success)] px-0.5 rounded font-medium">
-                        {part}
-                    </span>
-                )
-            }
-            return part
-        })
-    }
 
     return (
-        <div className="flex-1 p-6 md:p-8 lg:p-10 w-full">
+        <div style={{ flex: 1, paddingTop: '2rem', paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingBottom: '2rem', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-8 lg:mb-10"
+                style={{ textAlign: 'center', marginBottom: '1.75rem' }}
             >
-                <h1 className="text-2xl lg:text-3xl font-bold gradient-text mb-3">Resume Mirror</h1>
-                <p className="text-[var(--color-text-muted)] text-sm">
+                <h1 className="gradient-text" style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>Resume Mirror</h1>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', maxWidth: '28rem', margin: '0 auto', lineHeight: 1.6 }}>
                     Paste a job description and your resume side by side — discover the keyword gap
                 </p>
             </motion.div>
 
             {/* Split-screen panes */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-10">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', marginBottom: '1.5rem' }}>
                 {/* Left Pane — Job Description */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass rounded-2xl p-6 lg:p-8 flex flex-col"
+                    className="glass rounded-2xl flex flex-col"
+                    style={{ padding: '1.25rem 1.25rem 1.5rem' }}
                 >
-                    <div className="flex items-center gap-2.5 mb-5">
-                        <Briefcase className="w-5 h-5 text-[var(--color-primary-light)]" />
-                        <h2 className="text-base font-semibold text-[var(--color-text)]">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.875rem', minHeight: '2rem' }}>
+                        <Briefcase style={{ width: 20, height: 20, color: 'var(--color-primary-light)', flexShrink: 0 }} />
+                        <h2 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text)', margin: 0 }}>
                             Job Description
                         </h2>
                     </div>
 
-                    {/* Show highlighted overlay when results exist, otherwise show textarea */}
-                    {result ? (
-                        <div className="flex-1 min-h-[320px] lg:min-h-[420px] p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] overflow-y-auto text-sm leading-relaxed whitespace-pre-wrap">
-                            {highlightJD()}
-                        </div>
-                    ) : (
-                        <textarea
-                            value={jobDescription}
-                            onChange={(e) => setJobDescription(e.target.value)}
-                            className="input-field flex-1 min-h-[320px] lg:min-h-[420px] resize-none text-sm leading-relaxed"
-                            placeholder="Paste the full job description here...&#10;&#10;Example:&#10;We are looking for a Software Engineer with experience in Python, Docker, Kubernetes, and FastAPI..."
-                        />
-                    )}
+                    <textarea
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        className="input-field"
+                        style={{ flex: 1, minHeight: '340px', resize: 'none', fontSize: '0.875rem', lineHeight: 1.7 }}
+                        placeholder="Paste the full job description here...&#10;&#10;Example:&#10;We are looking for a Software Engineer with experience in Python, Docker, Kubernetes, and FastAPI..."
+                    />
                 </motion.div>
 
                 {/* Right Pane — Resume */}
@@ -170,36 +125,45 @@ export default function Workspace() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="glass rounded-2xl p-6 lg:p-8 flex flex-col"
+                    className="glass rounded-2xl flex flex-col"
+                    style={{ padding: '1.25rem 1.25rem 1.5rem', overflow: 'hidden' }}
                 >
-                    <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-                        <div className="flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-[var(--color-accent)]" />
-                            <h2 className="text-base font-semibold text-[var(--color-text)]">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.875rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                            <FileText style={{ width: 20, height: 20, color: 'var(--color-accent)', flexShrink: 0 }} />
+                            <h2 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-text)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 Your Resume
                             </h2>
                         </div>
 
                         {/* Toggle between text and file */}
-                        <div className="flex bg-[var(--color-surface)] rounded-lg p-1 border border-[var(--color-border)] shrink-0">
+                        <div style={{ display: 'flex', background: 'var(--color-surface)', borderRadius: '0.5rem', padding: '3px', border: '1px solid var(--color-border)', flexShrink: 0 }}>
                             <button
                                 onClick={() => setInputMode('text')}
-                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-medium transition-all cursor-pointer border-none ${inputMode === 'text'
-                                    ? 'bg-[var(--color-primary)] text-white'
-                                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] bg-transparent'
-                                    }`}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.375rem',
+                                    padding: '0.3rem 0.6rem', borderRadius: '0.375rem',
+                                    fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', border: 'none',
+                                    transition: 'all 0.2s ease',
+                                    background: inputMode === 'text' ? 'var(--color-primary)' : 'transparent',
+                                    color: inputMode === 'text' ? 'white' : 'var(--color-text-muted)',
+                                }}
                             >
-                                <Type className="w-3.5 h-3.5" />
+                                <Type style={{ width: 14, height: 14 }} />
                                 Text
                             </button>
                             <button
                                 onClick={() => setInputMode('file')}
-                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-medium transition-all cursor-pointer border-none ${inputMode === 'file'
-                                    ? 'bg-[var(--color-primary)] text-white'
-                                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] bg-transparent'
-                                    }`}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '0.375rem',
+                                    padding: '0.3rem 0.6rem', borderRadius: '0.375rem',
+                                    fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', border: 'none',
+                                    transition: 'all 0.2s ease',
+                                    background: inputMode === 'file' ? 'var(--color-primary)' : 'transparent',
+                                    color: inputMode === 'file' ? 'white' : 'var(--color-text-muted)',
+                                }}
                             >
-                                <FileUp className="w-3.5 h-3.5" />
+                                <FileUp style={{ width: 14, height: 14 }} />
                                 File
                             </button>
                         </div>
@@ -209,16 +173,20 @@ export default function Workspace() {
                         <textarea
                             value={resumeText}
                             onChange={(e) => setResumeText(e.target.value)}
-                            className="input-field flex-1 min-h-[320px] lg:min-h-[420px] resize-none text-sm leading-relaxed"
+                            className="input-field"
+                            style={{ flex: 1, minHeight: '340px', resize: 'none', fontSize: '0.875rem', lineHeight: 1.7 }}
                             placeholder="Paste your resume text here...&#10;&#10;Example:&#10;• Built backend APIs using Django and Flask&#10;• Managed deployments on AWS EC2 instances&#10;• Implemented CI/CD pipelines..."
                         />
                     ) : (
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className={`flex-1 min-h-[320px] lg:min-h-[420px] rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-4 ${fileName
-                                ? 'border-[var(--color-success)]/30 bg-[var(--color-success)]/5'
-                                : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5'
-                                }`}
+                            style={{
+                                flex: 1, minHeight: '340px', borderRadius: '0.75rem',
+                                border: '2px dashed', transition: 'all 0.2s ease', cursor: 'pointer',
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem',
+                                borderColor: fileName ? 'rgba(52,211,153,0.3)' : 'var(--color-border)',
+                                background: fileName ? 'rgba(52,211,153,0.05)' : 'transparent',
+                            }}
                         >
                             <input
                                 ref={fileInputRef}
@@ -262,7 +230,7 @@ export default function Workspace() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="flex justify-center mb-12 mt-2"
+                style={{ display: 'flex', justifyContent: 'center', marginBottom: '2.5rem', marginTop: '2.5rem' }}
             >
                 <button
                     onClick={handleAnalyze}
@@ -283,70 +251,6 @@ export default function Workspace() {
                 </button>
             </motion.div>
 
-            {/* Results section */}
-            <AnimatePresence>
-                {result && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="space-y-6"
-                    >
-                        {/* Match meter + Keywords */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-                            {/* Match Meter */}
-                            <div className="glass rounded-2xl p-6 lg:p-8 flex items-center justify-center">
-                                <MatchMeter score={result.match_score} />
-                            </div>
-
-                            {/* Keywords */}
-                            <div className="glass rounded-2xl p-6 lg:p-8 md:col-span-2">
-                                <KeywordChips
-                                    missing={result.missing_keywords}
-                                    matched={result.matched_keywords}
-                                    onMissingClick={handleMissingClick}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Tip */}
-                        <div className="glass rounded-xl p-5 flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-[var(--color-primary-light)] shrink-0 mt-0.5" />
-                            <p className="text-sm text-[var(--color-text-muted)]">
-                                <span className="font-medium text-[var(--color-text)]">Tip:</span> Click on any{' '}
-                                <span className="text-[var(--color-danger)] font-medium">missing keyword</span> to get an
-                                AI-powered bullet point suggestion. Add the rewritten bullets to your resume
-                                and re-analyze to improve your score.
-                            </p>
-                        </div>
-
-                        {/* New scan button */}
-                        <div className="flex justify-center">
-                            <button
-                                onClick={() => {
-                                    setResult(null)
-                                    setJobDescription('')
-                                    setResumeText('')
-                                    setResumeFile(null)
-                                    setFileName('')
-                                }}
-                                className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1"
-                            >
-                                <Search className="w-4 h-4" />
-                                Start a new scan
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Rewrite Modal */}
-            <RewriteModal
-                isOpen={rewriteOpen}
-                onClose={() => setRewriteOpen(false)}
-                keyword={selectedKeyword}
-                jdContext={jobDescription}
-            />
         </div>
     )
 }
