@@ -1,7 +1,12 @@
 import { motion } from 'framer-motion'
 
-export default function MatchMeter({ score = 0 }) {
-    const radius = 70
+export default function MatchMeter({ score = 0, size = 'normal' }) {
+    const isCompact = size === 'compact'
+    const radius = isCompact ? 50 : 70
+    const viewBox = isCompact ? '0 0 120 120' : '0 0 160 160'
+    const center = isCompact ? 60 : 80
+    const strokeW = isCompact ? 8 : 10
+    const containerClass = isCompact ? 'w-28 h-28' : 'w-36 h-36'
     const circumference = 2 * Math.PI * radius
     const offset = circumference - (score / 100) * circumference
 
@@ -23,40 +28,40 @@ export default function MatchMeter({ score = 0 }) {
     const color = getColor(score)
 
     return (
-        <div className="flex flex-col items-center gap-3">
-            <div className="relative w-44 h-44">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
+        <div className="flex flex-col items-center gap-2">
+            <div className={`relative ${containerClass}`}>
+                <svg className="w-full h-full -rotate-90" viewBox={viewBox}>
                     {/* Background circle */}
                     <circle
-                        cx="80"
-                        cy="80"
+                        cx={center}
+                        cy={center}
                         r={radius}
                         fill="none"
                         stroke="var(--color-surface-lighter)"
-                        strokeWidth="10"
+                        strokeWidth={strokeW}
                     />
                     {/* Progress circle */}
                     <motion.circle
-                        cx="80"
-                        cy="80"
+                        cx={center}
+                        cy={center}
                         r={radius}
                         fill="none"
                         stroke={color}
-                        strokeWidth="10"
+                        strokeWidth={strokeW}
                         strokeLinecap="round"
                         strokeDasharray={circumference}
                         initial={{ strokeDashoffset: circumference }}
                         animate={{ strokeDashoffset: offset }}
                         transition={{ duration: 1.5, ease: 'easeInOut' }}
                         style={{
-                            filter: `drop-shadow(0 0 8px ${color}60)`,
+                            filter: `drop-shadow(0 0 6px ${color}60)`,
                         }}
                     />
                 </svg>
                 {/* Center text */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <motion.span
-                        className="text-4xl font-bold"
+                        className={`${isCompact ? 'text-2xl' : 'text-3xl'} font-bold`}
                         style={{ color }}
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -64,11 +69,11 @@ export default function MatchMeter({ score = 0 }) {
                     >
                         {Math.round(score)}%
                     </motion.span>
-                    <span className="text-xs text-[var(--color-text-muted)] mt-1">Match Score</span>
+                    <span className="text-[0.625rem] text-[var(--color-text-muted)] mt-0.5">Match Score</span>
                 </div>
             </div>
             <motion.p
-                className="text-sm font-medium"
+                className="text-xs font-medium"
                 style={{ color }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
