@@ -4,34 +4,44 @@ import { X, Sparkles, Copy, Check, Loader2 } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 
-export default function RewriteModal({ isOpen, onClose, keyword, jdContext = '' }) {
+export default function RewriteModal({ isOpen, onClose, keyword, keywords = [], jdContext = '', isBulk = false }) {
     const [rewrittenBullet, setRewrittenBullet] = useState('')
+    const [rewrittenBullets, setRewrittenBullets] = useState([])
     const [loading, setLoading] = useState(false)
-    const [copied, setCopied] = useState(false)
+    const [copiedIndex, setCopiedIndex] = useState(null)
+    const [copiedAll, setCopiedAll] = useState(false)
 
-    // Auto-generate when modal opens with a keyword
+    // Auto-generate when modal opens
     useEffect(() => {
-        if (isOpen && keyword) {
+        if (isOpen && (keyword || (isBulk && keywords.length > 0))) {
             generateBullet()
         }
-    }, [isOpen, keyword])
+    }, [isOpen, keyword, isBulk, keywords])
 
     const generateBullet = async () => {
         setLoading(true)
         setRewrittenBullet('')
-        setCopied(false)
+        setRewrittenBullets([])
+        setCopiedIndex(null)
+        setCopiedAll(false)
         try {
-            const response = await api.post('/scan/rewrite', {
-                original_bullet: `Write a strong resume bullet point incorporating the keyword "${keyword}"`,
-                keyword,
-                jd_context: jdContext,
-            })
-            console.log('Rewrite response:', response.data)
-            if (response.data && response.data.rewritten_bullet) {
-                setRewrittenBullet(response.data.rewritten_bullet)
+            if (isBulk) {
+                const response = await api.post('/scan/rewrite-bulk', {
+                    keywords,
+                    jd_context: jdContext,
+                })
+                if (response.data && response.data.rewritten_bullets) {
+                    setRewrittenBullets(response.data.rewritten_bullets)
+                }
             } else {
-                console.error('Unexpected response structure:', response.data)
-                setRewrittenBullet('') // ensures falsy if structure is bad
+                const response = await api.post('/scan/rewrite', {
+                    original_bullet: `Write a strong resume bullet point incorporating the keyword "${keyword}"`,
+                    keyword,
+                    jd_context: jdContext,
+                })
+                if (response.data && response.data.rewritten_bullet) {
+                    setRewrittenBullet(response.data.rewritten_bullet)
+                }
             }
         } catch (error) {
             console.error('Rewrite error:', error)
@@ -41,17 +51,22 @@ export default function RewriteModal({ isOpen, onClose, keyword, jdContext = '' 
         }
     }
 
-    const handleCopy = async () => {
-        if (!rewrittenBullet) return
-        await navigator.clipboard.writeText(rewrittenBullet)
-        setCopied(true)
+    const handleCopy = async (text, index = null) => {
+        if (!text) return
+        await navigator.clipboard.writeText(text)
+        if (index !== null) {
+            setCopiedIndex(index)
+            setTimeout(() => setCopiedIndex(null), 2000)
+        } else {
+            setCopiedAll(true)
+            setTimeout(() => setCopiedAll(false), 2000)
+        }
         toast.success('Copied to clipboard!')
-        setTimeout(() => setCopied(false), 2000)
     }
 
     const handleClose = () => {
         setRewrittenBullet('')
-        setCopied(false)
+        setRewrittenBullets([])
         onClose()
     }
 
@@ -78,7 +93,7 @@ export default function RewriteModal({ isOpen, onClose, keyword, jdContext = '' 
                         className="glass-strong"
                         style={{
                             borderRadius: '1rem', padding: '1.5rem',
-                            width: '100%', maxWidth: '28rem',
+                            width: '100%', maxWidth: '32rem',
                         }}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -97,10 +112,14 @@ export default function RewriteModal({ isOpen, onClose, keyword, jdContext = '' 
                                 </div>
                                 <div>
                                     <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text)', margin: 0 }}>
-                                        AI Bullet Point
+                                        {isBulk ? 'Bulk AI Rewrites' : 'AI Bullet Point'}
                                     </h2>
                                     <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', margin: 0 }}>
-                                        Keyword: <span style={{ color: 'var(--color-danger)', fontWeight: 500 }}>{keyword}</span>
+                                        {isBulk ? (
+                                            <>Optimizing for <span style={{ color: 'var(--color-primary-light)', fontWeight: 500 }}>{keywords.length} keywords</span></>
+                                        ) : (
+                                            <>Keyword: <span style={{ color: 'var(--color-danger)', fontWeight: 500 }}>{keyword}</span></>
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -113,8 +132,6 @@ export default function RewriteModal({ isOpen, onClose, keyword, jdContext = '' 
                                     alignItems: 'center', justifyContent: 'center',
                                     transition: 'background 0.15s ease',
                                 }}
-                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                             >
                                 <X style={{ width: 16, height: 16, color: 'var(--color-text-muted)' }} />
                             </button>
@@ -124,7 +141,7 @@ export default function RewriteModal({ isOpen, onClose, keyword, jdContext = '' 
                         {loading ? (
                             <div style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center',
-                                gap: '0.75rem', padding: '2rem 1rem',
+                                gap: '0.75rem', padding: '3rem 1rem',
                             }}>
                                 <Loader2
                                     style={{
@@ -134,78 +151,109 @@ export default function RewriteModal({ isOpen, onClose, keyword, jdContext = '' 
                                     }}
                                 />
                                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', margin: 0 }}>
-                                    Generating bullet point...
+                                    Crafting your {isBulk ? '3 bullet points' : 'bullet point'}...
                                 </p>
                                 <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
                             </div>
-                        ) : rewrittenBullet ? (
-                            <div>
-                                {/* Rewritten bullet */}
-                                <div style={{
-                                    padding: '1rem 1.125rem', borderRadius: '0.75rem',
-                                    background: 'rgba(52, 211, 153, 0.06)',
-                                    border: '1px solid rgba(52, 211, 153, 0.15)',
-                                    marginBottom: '1rem',
-                                }}>
-                                    <p style={{
-                                        fontSize: '0.8125rem', color: 'var(--color-text)',
-                                        lineHeight: 1.65, margin: 0,
+                        ) : (rewrittenBullet || rewrittenBullets.length > 0) ? (
+                            <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '4px' }}>
+                                {isBulk ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        {rewrittenBullets.map((bullet, idx) => (
+                                            <div key={idx} style={{
+                                                position: 'relative',
+                                                padding: '1rem 1.125rem', borderRadius: '0.75rem',
+                                                background: 'rgba(52, 211, 153, 0.04)',
+                                                border: '1px solid rgba(52, 211, 153, 0.12)',
+                                            }}>
+                                                <p style={{
+                                                    fontSize: '0.8125rem', color: 'var(--color-text)',
+                                                    lineHeight: 1.6, margin: '0 0 0.75rem 0',
+                                                }}>
+                                                    {bullet}
+                                                </p>
+                                                <button
+                                                    onClick={() => handleCopy(bullet, idx)}
+                                                    style={{
+                                                        display: 'flex', alignItems: 'center', gap: '0.375rem',
+                                                        fontSize: '0.6875rem', fontWeight: 600,
+                                                        color: copiedIndex === idx ? 'var(--color-success)' : 'var(--color-primary-light)',
+                                                        background: 'transparent', border: 'none', cursor: 'pointer', padding: 0
+                                                    }}
+                                                >
+                                                    {copiedIndex === idx ? <><Check size={12} /> Copied!</> : <><Copy size={12} /> Copy this point</>}
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        padding: '1rem 1.125rem', borderRadius: '0.75rem',
+                                        background: 'rgba(52, 211, 153, 0.06)',
+                                        border: '1px solid rgba(52, 211, 153, 0.15)',
+                                        marginBottom: '1rem',
                                     }}>
-                                        {rewrittenBullet}
-                                    </p>
-                                </div>
+                                        <p style={{
+                                            fontSize: '0.8125rem', color: 'var(--color-text)',
+                                            lineHeight: 1.65, margin: 0,
+                                        }}>
+                                            {rewrittenBullet}
+                                        </p>
+                                    </div>
+                                )}
 
                                 {/* Actions */}
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button
-                                        onClick={handleCopy}
-                                        style={{
-                                            flex: 1, display: 'flex', alignItems: 'center',
-                                            justifyContent: 'center', gap: '0.375rem',
-                                            padding: '0.5rem 1rem', borderRadius: '0.5rem',
-                                            fontSize: '0.8125rem', fontWeight: 500,
-                                            background: copied ? 'rgba(52, 211, 153, 0.15)' : 'rgba(99, 102, 241, 0.1)',
-                                            color: copied ? 'var(--color-success)' : 'var(--color-primary-light)',
-                                            border: `1px solid ${copied ? 'rgba(52, 211, 153, 0.25)' : 'rgba(99, 102, 241, 0.2)'}`,
-                                            cursor: 'pointer', transition: 'all 0.2s ease',
-                                        }}
-                                    >
-                                        {copied ? (
-                                            <><Check style={{ width: 14, height: 14 }} /> Copied!</>
-                                        ) : (
-                                            <><Copy style={{ width: 14, height: 14 }} /> Copy to Clipboard</>
-                                        )}
-                                    </button>
+                                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.25rem' }}>
+                                    {!isBulk && (
+                                        <button
+                                            onClick={() => handleCopy(rewrittenBullet)}
+                                            style={{
+                                                flex: 1, display: 'flex', alignItems: 'center',
+                                                justifyContent: 'center', gap: '0.375rem',
+                                                padding: '0.625rem 1rem', borderRadius: '0.625rem',
+                                                fontSize: '0.8125rem', fontWeight: 600,
+                                                background: copiedAll ? 'rgba(52, 211, 153, 0.15)' : 'rgba(99, 102, 241, 0.1)',
+                                                color: copiedAll ? 'var(--color-success)' : 'var(--color-primary-light)',
+                                                border: `1px solid ${copiedAll ? 'rgba(52, 211, 153, 0.25)' : 'rgba(99, 102, 241, 0.2)'}`,
+                                                cursor: 'pointer', transition: 'all 0.2s ease',
+                                            }}
+                                        >
+                                            {copiedAll ? (
+                                                <><Check style={{ width: 14, height: 14 }} /> Copied!</>
+                                            ) : (
+                                                <><Copy style={{ width: 14, height: 14 }} /> Copy to Clipboard</>
+                                            )}
+                                        </button>
+                                    )}
                                     <button
                                         onClick={generateBullet}
                                         style={{
+                                            flex: isBulk ? 1 : 'none',
                                             display: 'flex', alignItems: 'center',
                                             justifyContent: 'center', gap: '0.375rem',
-                                            padding: '0.5rem 1rem', borderRadius: '0.5rem',
-                                            fontSize: '0.8125rem', fontWeight: 500,
+                                            padding: '0.625rem 1rem', borderRadius: '0.625rem',
+                                            fontSize: '0.8125rem', fontWeight: 600,
                                             background: 'rgba(255,255,255,0.05)',
                                             color: 'var(--color-text-muted)',
                                             border: '1px solid rgba(255,255,255,0.1)',
                                             cursor: 'pointer', transition: 'all 0.2s ease',
                                         }}
-                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                                     >
                                         <Sparkles style={{ width: 14, height: 14 }} />
-                                        Regenerate
+                                        Regenerate {isBulk ? 'Set' : ''}
                                     </button>
                                 </div>
                             </div>
                         ) : (
                             <div style={{
-                                padding: '2rem 1rem', textAlign: 'center',
+                                padding: '3rem 1rem', textAlign: 'center',
                                 color: 'var(--color-text-muted)', fontSize: '0.8125rem',
                             }}>
-                                <p style={{ margin: '0 0 1rem 0' }}>Something went wrong. The AI didn't return a result.</p>
+                                <p style={{ margin: '0 0 1.25rem 0' }}>The AI didn't return a result. This can happen due to network issues.</p>
                                 <button
                                     onClick={generateBullet}
                                     className="btn-primary"
-                                    style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+                                    style={{ fontSize: '0.75rem', padding: '0.625rem 1.25rem' }}
                                 >
                                     Try Again
                                 </button>

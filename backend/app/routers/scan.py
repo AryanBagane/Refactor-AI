@@ -3,10 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from app.database import get_db
 from app.models import User, ScanHistory
-from app.schemas import AnalyzeRequest, AnalyzeResponse, RewriteRequest, RewriteResponse, ScanHistoryOut
+from app.schemas import AnalyzeRequest, AnalyzeResponse, RewriteRequest, RewriteResponse, BulkRewriteRequest, BulkRewriteResponse, ScanHistoryOut
 from app.core.dependencies import get_current_user
 from app.services.nlp_service import analyze
-from app.services.ai_service import rewrite_bullet
+from app.services.ai_service import rewrite_bullet, rewrite_bulk
 from app.utils.pdf_parser import extract_text_from_pdf, extract_text_from_docx
 from app.utils.logger import get_logger
 from typing import List, Optional
@@ -84,6 +84,19 @@ async def ai_rewrite(
         jd_context=data.jd_context,
     )
     return RewriteResponse(rewritten_bullet=rewritten)
+
+
+@router.post("/rewrite-bulk", response_model=BulkRewriteResponse)
+async def ai_rewrite_bulk(
+    data: BulkRewriteRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """AI-powered bulk rewrite to generate 3 bullet points from missing keywords."""
+    rewritten_bullets = await rewrite_bulk(
+        keywords=data.keywords,
+        jd_context=data.jd_context,
+    )
+    return BulkRewriteResponse(rewritten_bullets=rewritten_bullets)
 
 
 @router.get("/history", response_model=List[ScanHistoryOut])
