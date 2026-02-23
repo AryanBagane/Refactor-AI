@@ -9,7 +9,9 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # Primary and fallback models from OpenRouter
 MODELS = [
-    "google/gemma-3-12b-it:free"
+    "google/gemma-3-12b-it:free",
+    "stepfun/step-3.5-flash:free",
+    "openai/gpt-oss-120b:free",
 ]
 
 
