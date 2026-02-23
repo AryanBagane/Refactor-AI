@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { LogIn, Mail, Lock, Sparkles, ArrowRight, Zap, Target, BarChart3 } from 'lucide-react'
+import { LogIn, Mail, Lock, ArrowRight, Zap, Target, BarChart3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
 
@@ -38,9 +38,7 @@ export default function LoginPage() {
                     transition={{ duration: 0.7, ease: 'easeOut' }}
                 >
                     <div className="auth-brand mb-6">
-                        <div className="auth-brand-icon">
-                            <Sparkles className="w-6 h-6 text-white" />
-                        </div>
+                        <img src="/refactorai_logo.png" alt="Refactor AI Logo" className="w-8 h-8 object-contain" />
                         <span className="auth-brand-name">Refactor AI</span>
                     </div>
                     <h2 className="auth-hero-tagline">
@@ -83,9 +81,7 @@ export default function LoginPage() {
                     {/* Logo header */}
                     <div className="text-center mb-8">
                         <div className="auth-brand justify-center mb-4">
-                            <div className="auth-brand-icon">
-                                <Sparkles className="w-6 h-6 text-white" />
-                            </div>
+                            <img src="/refactorai_logo.png" alt="Refactor AI Logo" className="w-8 h-8 object-contain" />
                             <span className="auth-brand-name">Refactor AI</span>
                         </div>
                         <h1 className="text-3xl font-bold gradient-text mb-2">Welcome Back, Achiever</h1>

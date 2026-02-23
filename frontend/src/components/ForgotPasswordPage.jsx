@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { KeyRound, Mail, Lock, Sparkles, ArrowLeft, ShieldCheck, Zap, Target, BarChart3 } from 'lucide-react'
+import { KeyRound, Mail, Lock, ArrowLeft, ShieldCheck, Zap, Target, BarChart3 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 
@@ -66,9 +66,7 @@ export default function ForgotPasswordPage() {
                     transition={{ duration: 0.7, ease: 'easeOut' }}
                 >
                     <div className="auth-brand" style={{ marginBottom: '1.5rem' }}>
-                        <div className="auth-brand-icon">
-                            <Sparkles style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
-                        </div>
+                        <img src="/refactorai_logo.png" alt="Refactor AI Logo" style={{ width: '2rem', height: '2rem', objectFit: 'contain' }} />
                         <span className="auth-brand-name">Refactor AI</span>
                     </div>
                     <h2 className="auth-hero-tagline">
@@ -113,9 +111,7 @@ export default function ForgotPasswordPage() {
                     {/* Logo header */}
                     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                         <div className="auth-brand" style={{ justifyContent: 'center', marginBottom: '1rem' }}>
-                            <div className="auth-brand-icon">
-                                <Sparkles style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
-                            </div>
+                            <img src="/refactorai_logo.png" alt="Refactor AI Logo" style={{ width: '2rem', height: '2rem', objectFit: 'contain' }} />
                             <span className="auth-brand-name">Refactor AI</span>
                         </div>
                         <h1 className="gradient-text" style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem' }}>

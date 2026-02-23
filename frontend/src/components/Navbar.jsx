@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { FileText, History, LogOut, Sparkles } from 'lucide-react'
+import { FileText, History, LogOut } from 'lucide-react'
 
 export default function Navbar() {
     const { logout, isAuthenticated } = useAuth()
@@ -16,12 +16,8 @@ export default function Navbar() {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2.5 no-underline">
-                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center">
-                            <Sparkles className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-xl font-bold gradient-text tracking-tight">
-                            Refactor AI
-                        </span>
+                        <img src="/refactorai_logo_name.png" alt="Refactor AI" className="h-10 object-contain" />
+                        
                     </Link>
 
                     {/* Navigation */}
@@ -29,8 +25,8 @@ export default function Navbar() {
                         <Link
                             to="/"
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all no-underline ${isActive('/')
-                                    ? 'bg-[var(--color-primary)]/15 text-[var(--color-primary-light)]'
-                                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-white/5'
+                                ? 'bg-[var(--color-primary)]/15 text-[var(--color-primary-light)]'
+                                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-white/5'
                                 }`}
                         >
                             <FileText className="w-4 h-4" />
@@ -40,8 +36,8 @@ export default function Navbar() {
                         <Link
                             to="/history"
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all no-underline ${isActive('/history')
-                                    ? 'bg-[var(--color-primary)]/15 text-[var(--color-primary-light)]'
-                                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-white/5'
+                                ? 'bg-[var(--color-primary)]/15 text-[var(--color-primary-light)]'
+                                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-white/5'
                                 }`}
                         >
                             <History className="w-4 h-4" />

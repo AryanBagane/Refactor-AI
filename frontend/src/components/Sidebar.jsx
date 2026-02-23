@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
-    Sparkles, FileText, History, LogOut,
+    FileText, History, LogOut,
     Menu, X, ChevronRight, BarChart3
 } from 'lucide-react'
 
@@ -51,10 +51,8 @@ export default function Sidebar() {
 
                 {/* Brand */}
                 <div className="sidebar-brand">
-                    <div className="sidebar-brand-icon">
-                        <Sparkles style={{ width: 20, height: 20, color: 'white' }} />
-                    </div>
-                    <span className="sidebar-brand-name">Refactor AI</span>
+                    <img src="/refactorai_logo_name.png" alt="Refactor AI" className="h-9 object-contain" />
+                    <span className="sidebar-brand-text">Refactor AI</span>
                 </div>
 
                 {/* Section label */}
