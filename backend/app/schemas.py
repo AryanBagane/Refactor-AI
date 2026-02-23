@@ -65,6 +65,15 @@ class RewriteResponse(BaseModel):
     rewritten_bullet: str
 
 
+class BulkRewriteRequest(BaseModel):
+    keywords: List[str]
+    jd_context: Optional[str] = ""
+
+
+class BulkRewriteResponse(BaseModel):
+    rewritten_bullets: List[str]
+
+
 class ScanHistoryOut(BaseModel):
     id: int
     job_description: str

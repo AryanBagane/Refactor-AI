@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Search, AlertCircle, BarChart3, TrendingUp, TrendingDown } from 'lucide-react'
+import { ArrowLeft, Search, AlertCircle, BarChart3, TrendingUp, TrendingDown, Sparkles } from 'lucide-react'
 import MatchMeter from './MatchMeter'
 import RewriteModal from './RewriteModal'
 import { useState } from 'react'
@@ -16,6 +16,11 @@ export default function MatchScorePage() {
 
     const handleMissingClick = (keyword) => {
         setSelectedKeyword(keyword)
+        setRewriteOpen(true)
+    }
+
+    const handleBulkRewrite = () => {
+        setSelectedKeyword('')
         setRewriteOpen(true)
     }
 
@@ -150,15 +155,35 @@ export default function MatchScorePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                     {/* Missing Keywords */}
                     <div>
-                        <h4 style={{
-                            fontSize: '0.75rem', fontWeight: 600,
-                            color: 'var(--color-danger)',
-                            marginBottom: '0.75rem', marginTop: 0,
-                            display: 'flex', alignItems: 'center', gap: '0.375rem',
+                        <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            marginBottom: '0.875rem', gap: '1rem'
                         }}>
-                            <TrendingDown style={{ width: 14, height: 14 }} />
-                            Missing Keywords ({missing_keywords.length})
-                        </h4>
+                            <h4 style={{
+                                fontSize: '0.75rem', fontWeight: 600,
+                                color: 'var(--color-danger)',
+                                margin: 0,
+                                display: 'flex', alignItems: 'center', gap: '0.375rem',
+                            }}>
+                                <TrendingDown style={{ width: 14, height: 14 }} />
+                                Missing Keywords ({missing_keywords.length})
+                            </h4>
+
+                            {missing_keywords.length > 0 && (
+                                <button
+                                    onClick={() => setRewriteOpen(true)}
+                                    className="flex items-center gap-1.5 px-6 py-2.5 rounded-md text-[12px] tracking-wider transition-all"
+                                    style={{
+                                        background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
+                                        color: 'white', border: 'none', cursor: 'pointer',
+                                        boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
+                                    }}
+                                >
+                                    <Sparkles size={12} />
+                                    Combine & Rewrite All
+                                </button>
+                            )}
+                        </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
                             {missing_keywords.map((kw) => (
                                 <span
@@ -236,7 +261,7 @@ export default function MatchScorePage() {
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', lineHeight: 1.5, margin: 0 }}>
                     <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>Tip:</span> Click any{' '}
                     <span style={{ color: 'var(--color-danger)', fontWeight: 500 }}>missing keyword</span> for an
-                    AI-powered bullet point suggestion.
+                    AI-powered bullet point suggestion or click on "Combine & Rewrite All" to combine and rewrite all the missing keywords in one go.
                 </p>
             </motion.div>
 
@@ -262,6 +287,8 @@ export default function MatchScorePage() {
                 isOpen={rewriteOpen}
                 onClose={() => setRewriteOpen(false)}
                 keyword={selectedKeyword}
+                keywords={missing_keywords}
+                isBulk={!selectedKeyword}
                 jdContext={jobDescription}
             />
         </div>
