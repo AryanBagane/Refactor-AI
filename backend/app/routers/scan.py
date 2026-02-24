@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from app.database import get_db
 from app.models import User, ScanHistory
-from app.schemas import AnalyzeRequest, AnalyzeResponse, RewriteRequest, RewriteResponse, BulkRewriteRequest, BulkRewriteResponse, ScanHistoryOut
+from app.schemas import AnalyzeRequest, AnalyzeResponse, RewriteRequest, RewriteResponse, BulkRewriteRequest, BulkRewriteResponse, ScanHistoryOut, SaveRewritesRequest
 from app.core.dependencies import get_current_user
 from app.services.nlp_service import analyze
 from app.services.ai_service import rewrite_bullet, rewrite_bulk
@@ -69,7 +69,10 @@ async def analyze_resume(
     await db.commit()
     logger.info(f"Scan saved for user {current_user.id} — score: {result['match_score']}%")
 
-    return AnalyzeResponse(**result)
+    return AnalyzeResponse(
+        scan_id=scan_record.id,
+        **result
+    )
 
 
 @router.post("/rewrite", response_model=RewriteResponse)
@@ -138,3 +141,32 @@ async def delete_history(
     await db.commit()
     logger.info(f"Scan {scan_id} deleted by user {current_user.id}")
     return {"message": "Scan record deleted successfully."}
+
+
+@router.patch("/history/{scan_id}/rewrites", response_model=ScanHistoryOut)
+async def save_rewrites(
+    scan_id: int,
+    data: SaveRewritesRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Save AI-generated bullet point rewrites against a scan record."""
+    result = await db.execute(
+        select(ScanHistory).where(
+            ScanHistory.id == scan_id,
+            ScanHistory.user_id == current_user.id,
+        )
+    )
+    scan = result.scalar_one_or_none()
+
+    if not scan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Scan record not found.",
+        )
+
+    scan.ai_rewrites = data.ai_rewrites
+    await db.commit()
+    await db.refresh(scan)
+    logger.info(f"Saved {len(data.ai_rewrites)} ai_rewrites for scan {scan_id}")
+    return scan

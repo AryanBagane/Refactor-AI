@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - /var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U refactor_user -d refactor_ai_db"]
       interval: 5s
@@ -48,5 +48,3 @@ services:
     depends_on:
       - backend
 
-volumes:
-  pgdata:
