@@ -10,6 +10,7 @@ export default function MatchScorePage() {
     const navigate = useNavigate()
     const result = location.state?.result
     const jobDescription = location.state?.jobDescription || ''
+    const scanId = location.state?.scanId || null
 
     const [rewriteOpen, setRewriteOpen] = useState(false)
     const [selectedKeyword, setSelectedKeyword] = useState('')
@@ -290,6 +291,7 @@ export default function MatchScorePage() {
                 keywords={missing_keywords}
                 isBulk={!selectedKeyword}
                 jdContext={jobDescription}
+                scanId={scanId}
             />
         </div>
     )

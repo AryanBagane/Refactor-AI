@@ -31,6 +31,7 @@ class ScanHistory(Base):
     match_score = Column(Float, nullable=False)
     missing_keywords = Column(JSON, default=[])
     matched_keywords = Column(JSON, default=[])
+    ai_rewrites = Column(JSON, default=[])
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="scans")

@@ -50,6 +50,7 @@ class AnalyzeRequest(BaseModel):
 
 
 class AnalyzeResponse(BaseModel):
+    scan_id: Optional[int] = None
     match_score: float
     missing_keywords: List[str]
     matched_keywords: List[str]
@@ -74,6 +75,10 @@ class BulkRewriteResponse(BaseModel):
     rewritten_bullets: List[str]
 
 
+class SaveRewritesRequest(BaseModel):
+    ai_rewrites: List[str]
+
+
 class ScanHistoryOut(BaseModel):
     id: int
     job_description: str
@@ -81,6 +86,7 @@ class ScanHistoryOut(BaseModel):
     match_score: float
     missing_keywords: List[str]
     matched_keywords: List[str]
+    ai_rewrites: List[str] = []
     created_at: datetime
 
     class Config:

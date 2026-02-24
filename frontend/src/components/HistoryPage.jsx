@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     History, Trash2, Clock, TrendingUp, TrendingDown,
-    FileText, ChevronDown, ChevronUp, BarChart3, Search
+    FileText, ChevronDown, ChevronUp, BarChart3, Search,
+    Sparkles, Copy, Check
 } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
@@ -12,6 +13,7 @@ export default function HistoryPage() {
     const [scans, setScans] = useState([])
     const [loading, setLoading] = useState(true)
     const [expandedId, setExpandedId] = useState(null)
+    const [copiedIndex, setCopiedIndex] = useState(null) // tracks {scanId, bulletIdx}
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -48,8 +50,15 @@ export default function HistoryPage() {
                     matched_keywords: scan.matched_keywords,
                 },
                 jobDescription: scan.job_description,
+                scanId: scan.id,
             },
         })
+    }
+
+    const handleCopyBullet = async (text, scanId, idx) => {
+        await navigator.clipboard.writeText(text)
+        setCopiedIndex({ scanId, idx })
+        setTimeout(() => setCopiedIndex(null), 2000)
     }
 
     const getScoreColor = (score) => {
@@ -395,6 +404,64 @@ export default function HistoryPage() {
                                                             ))}
                                                         </div>
                                                     </div>
+                                                </div>
+
+                                                {/* AI Rewrites */}
+                                                <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--color-border)' }}>
+                                                    <h4 style={{
+                                                        fontSize: '0.75rem', fontWeight: 600,
+                                                        color: 'var(--color-primary-light)',
+                                                        marginBottom: '0.75rem',
+                                                        display: 'flex', alignItems: 'center', gap: '0.375rem',
+                                                    }}>
+                                                        <Sparkles style={{ width: 14, height: 14 }} />
+                                                        AI Rewrites ({scan.ai_rewrites?.length || 0})
+                                                    </h4>
+                                                    {scan.ai_rewrites && scan.ai_rewrites.length > 0 ? (
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                                                            {scan.ai_rewrites.map((bullet, idx) => {
+                                                                const isCopied = copiedIndex?.scanId === scan.id && copiedIndex?.idx === idx
+                                                                return (
+                                                                    <div key={idx} style={{
+                                                                        display: 'flex', alignItems: 'flex-start',
+                                                                        gap: '0.75rem', padding: '0.75rem 1rem',
+                                                                        borderRadius: '0.625rem',
+                                                                        background: 'rgba(99, 102, 241, 0.04)',
+                                                                        border: '1px solid rgba(99, 102, 241, 0.12)',
+                                                                    }}>
+                                                                        <p style={{
+                                                                            flex: 1, fontSize: '0.8125rem',
+                                                                            color: 'var(--color-text)', lineHeight: 1.6,
+                                                                            margin: 0,
+                                                                        }}>
+                                                                            {bullet}
+                                                                        </p>
+                                                                        <button
+                                                                            onClick={() => handleCopyBullet(bullet, scan.id, idx)}
+                                                                            title="Copy to clipboard"
+                                                                            style={{
+                                                                                flexShrink: 0, display: 'flex', alignItems: 'center',
+                                                                                gap: '0.3rem', padding: '0.3rem 0.6rem',
+                                                                                borderRadius: '0.4rem', border: 'none',
+                                                                                cursor: 'pointer', fontSize: '0.6875rem', fontWeight: 600,
+                                                                                transition: 'all 0.2s ease',
+                                                                                background: isCopied ? 'rgba(52,211,153,0.15)' : 'rgba(99,102,241,0.1)',
+                                                                                color: isCopied ? 'var(--color-success)' : 'var(--color-primary-light)',
+                                                                            }}
+                                                                        >
+                                                                            {isCopied
+                                                                                ? <><Check style={{ width: 12, height: 12 }} /> Copied!</>
+                                                                                : <><Copy style={{ width: 12, height: 12 }} /> Copy</>}
+                                                                        </button>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    ) : (
+                                                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                                                            No AI rewrites saved. Click <strong>View Score</strong> and generate rewrites to save them here.
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </motion.div>

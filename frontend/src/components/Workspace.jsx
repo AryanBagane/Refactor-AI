@@ -69,7 +69,13 @@ export default function Workspace() {
             })
 
             toast.success(`Analysis complete! Match: ${response.data.match_score}%`)
-            navigate('/match-score', { state: { result: response.data, jobDescription } })
+            navigate('/match-score', {
+                state: {
+                    result: response.data,
+                    jobDescription,
+                    scanId: response.data.scan_id,
+                },
+            })
         } catch (error) {
             const msg = error.response?.data?.detail || 'Analysis failed'
             toast.error(msg)
@@ -78,8 +84,7 @@ export default function Workspace() {
         }
     }
 
-
-
+    
     return (
         <div style={{ flex: 1, paddingTop: '2rem', paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingBottom: '2rem', width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
             {/* Header */}

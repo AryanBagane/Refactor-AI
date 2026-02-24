@@ -4,7 +4,7 @@ import { X, Sparkles, Copy, Check, Loader2 } from 'lucide-react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 
-export default function RewriteModal({ isOpen, onClose, keyword, keywords = [], jdContext = '', isBulk = false }) {
+export default function RewriteModal({ isOpen, onClose, keyword, keywords = [], jdContext = '', isBulk = false, scanId = null }) {
     const [rewrittenBullet, setRewrittenBullet] = useState('')
     const [rewrittenBullets, setRewrittenBullets] = useState([])
     const [loading, setLoading] = useState(false)
@@ -32,6 +32,12 @@ export default function RewriteModal({ isOpen, onClose, keyword, keywords = [], 
                 })
                 if (response.data && response.data.rewritten_bullets) {
                     setRewrittenBullets(response.data.rewritten_bullets)
+                    if (scanId) {
+                        await api.patch(`/scan/history/${scanId}/rewrites`, {
+                            ai_rewrites: response.data.rewritten_bullets,
+                        })
+                        toast.success('Bullets saved to history!')
+                    }
                 }
             } else {
                 const response = await api.post('/scan/rewrite', {
@@ -41,6 +47,12 @@ export default function RewriteModal({ isOpen, onClose, keyword, keywords = [], 
                 })
                 if (response.data && response.data.rewritten_bullet) {
                     setRewrittenBullet(response.data.rewritten_bullet)
+                    if (scanId) {
+                        await api.patch(`/scan/history/${scanId}/rewrites`, {
+                            ai_rewrites: [response.data.rewritten_bullet],
+                        })
+                        toast.success('Bullet saved to history!')
+                    }
                 }
             }
         } catch (error) {
