@@ -166,4 +166,3 @@ Return ONLY the 3 bullet points, each on a new line, nothing else. Do not use nu
 
     # Final fallback
     return [f"Optimized performance using {keywords_str} to meet project goals."]
-
