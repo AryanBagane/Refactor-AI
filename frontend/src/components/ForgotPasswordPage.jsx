@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { KeyRound, Mail, Lock, ArrowLeft, ShieldCheck, Zap, Target, BarChart3 } from 'lucide-react'
+import { KeyRound, Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, Zap, Target, BarChart3 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 
@@ -10,6 +10,8 @@ export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [showNew, setShowNew] = useState(false)
+    const [showConfirm, setShowConfirm] = useState(false)
     const { forgotPassword, resetPassword } = useAuth()
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
@@ -200,15 +202,24 @@ export default function ForgotPasswordPage() {
                                             <Lock style={iconStyle} />
                                             <input
                                                 id="reset-new-password"
-                                                type="password"
+                                                type={showNew ? 'text' : 'password'}
                                                 value={newPassword}
                                                 onChange={(e) => setNewPassword(e.target.value)}
                                                 className="input-field"
-                                                style={inputStyle}
+                                                style={{ ...inputStyle, paddingRight: '3rem' }}
                                                 placeholder="••••••••"
                                                 required
                                                 minLength={6}
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowNew(v => !v)}
+                                                style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center' }}
+                                                tabIndex={-1}
+                                                aria-label={showNew ? 'Hide password' : 'Show password'}
+                                            >
+                                                {showNew ? <EyeOff style={{ width: '1.125rem', height: '1.125rem' }} /> : <Eye style={{ width: '1.125rem', height: '1.125rem' }} />}
+                                            </button>
                                         </div>
                                     </div>
 
@@ -220,15 +231,24 @@ export default function ForgotPasswordPage() {
                                             <Lock style={iconStyle} />
                                             <input
                                                 id="reset-confirm-password"
-                                                type="password"
+                                                type={showConfirm ? 'text' : 'password'}
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                                 className="input-field"
-                                                style={inputStyle}
+                                                style={{ ...inputStyle, paddingRight: '3rem' }}
                                                 placeholder="••••••••"
                                                 required
                                                 minLength={6}
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowConfirm(v => !v)}
+                                                style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center' }}
+                                                tabIndex={-1}
+                                                aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                                            >
+                                                {showConfirm ? <EyeOff style={{ width: '1.125rem', height: '1.125rem' }} /> : <Eye style={{ width: '1.125rem', height: '1.125rem' }} />}
+                                            </button>
                                         </div>
                                     </div>
 

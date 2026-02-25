@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { LogIn, Mail, Lock, ArrowRight, Zap, Target, BarChart3 } from 'lucide-react'
+import { LogIn, Mail, Lock, Eye, EyeOff, ArrowRight, Zap, Target, BarChart3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
     const { login, loading } = useAuth()
     const navigate = useNavigate()
 
@@ -120,15 +121,24 @@ export default function LoginPage() {
                                     <Lock style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', width: '1.25rem', height: '1.25rem', color: 'var(--color-text-muted)' }} />
                                     <input
                                         id="login-password"
-                                        type="password"
+                                        type={showPassword ? 'text' : 'password'}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="input-field"
-                                        style={{ paddingLeft: '3rem' }}
+                                        style={{ paddingLeft: '3rem', paddingRight: '3rem' }}
                                         placeholder="••••••••"
                                         required
                                         minLength={6}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(v => !v)}
+                                        style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center' }}
+                                        tabIndex={-1}
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showPassword ? <EyeOff style={{ width: '1.125rem', height: '1.125rem' }} /> : <Eye style={{ width: '1.125rem', height: '1.125rem' }} />}
+                                    </button>
                                 </div>
                             </div>
 

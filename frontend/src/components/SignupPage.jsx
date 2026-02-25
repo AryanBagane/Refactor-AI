@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { UserPlus, Mail, Lock, ArrowRight, Zap, Target, BarChart3 } from 'lucide-react'
+import { UserPlus, Mail, Lock, Eye, EyeOff, ArrowRight, Zap, Target, BarChart3 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
 
@@ -9,6 +9,8 @@ export default function SignupPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirm, setShowConfirm] = useState(false)
     const { signup, loading } = useAuth()
     const navigate = useNavigate()
 
@@ -125,15 +127,24 @@ export default function SignupPage() {
                                     <Lock style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', width: '1.25rem', height: '1.25rem', color: 'var(--color-text-muted)' }} />
                                     <input
                                         id="signup-password"
-                                        type="password"
+                                        type={showPassword ? 'text' : 'password'}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="input-field"
-                                        style={{ paddingLeft: '3rem' }}
+                                        style={{ paddingLeft: '3rem', paddingRight: '3rem' }}
                                         placeholder="••••••••"
                                         required
                                         minLength={6}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(v => !v)}
+                                        style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center' }}
+                                        tabIndex={-1}
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showPassword ? <EyeOff style={{ width: '1.125rem', height: '1.125rem' }} /> : <Eye style={{ width: '1.125rem', height: '1.125rem' }} />}
+                                    </button>
                                 </div>
                             </div>
 
@@ -145,15 +156,24 @@ export default function SignupPage() {
                                     <Lock style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', width: '1.25rem', height: '1.25rem', color: 'var(--color-text-muted)' }} />
                                     <input
                                         id="signup-confirm-password"
-                                        type="password"
+                                        type={showConfirm ? 'text' : 'password'}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         className="input-field"
-                                        style={{ paddingLeft: '3rem' }}
+                                        style={{ paddingLeft: '3rem', paddingRight: '3rem' }}
                                         placeholder="••••••••"
                                         required
                                         minLength={6}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirm(v => !v)}
+                                        style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center' }}
+                                        tabIndex={-1}
+                                        aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showConfirm ? <EyeOff style={{ width: '1.125rem', height: '1.125rem' }} /> : <Eye style={{ width: '1.125rem', height: '1.125rem' }} />}
+                                    </button>
                                 </div>
                             </div>
 
