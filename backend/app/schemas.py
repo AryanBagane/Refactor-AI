@@ -54,6 +54,9 @@ class AnalyzeResponse(BaseModel):
     match_score: float
     missing_keywords: List[str]
     matched_keywords: List[str]
+    ats_breakdown: Optional[dict] = None
+    resume_sections: Optional[List[str]] = None
+    experience_years: Optional[int] = None
 
 
 class RewriteRequest(BaseModel):
@@ -87,6 +90,9 @@ class ScanHistoryOut(BaseModel):
     missing_keywords: List[str]
     matched_keywords: List[str]
     ai_rewrites: List[str] = []
+    ats_breakdown: Optional[dict] = None
+    resume_sections: Optional[List[str]] = None
+    experience_years: Optional[int] = None
     created_at: datetime
 
     class Config:
