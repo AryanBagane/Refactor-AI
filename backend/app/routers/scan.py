@@ -64,6 +64,9 @@ async def analyze_resume(
         match_score=result["match_score"],
         missing_keywords=result["missing_keywords"],
         matched_keywords=result["matched_keywords"],
+        ats_breakdown=result.get("ats_breakdown", {}),
+        resume_sections=result.get("resume_sections", []),
+        experience_years=result.get("experience_years"),
     )
     db.add(scan_record)
     await db.commit()
