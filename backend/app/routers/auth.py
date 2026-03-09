@@ -38,7 +38,7 @@ async def signup(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
 
     logger.info(f"New user registered: {new_user.email}")
 
-    token = create_access_token(data={"sub": str(new_user.id)})
+    token = create_access_token(data={"sub": str(new_user.id), "email": new_user.email})
     return Token(access_token=token)
 
 
@@ -54,7 +54,7 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
             detail="Invalid email or password",
         )
 
-    token = create_access_token(data={"sub": str(user.id)})
+    token = create_access_token(data={"sub": str(user.id), "email": user.email})
     logger.info(f"User logged in: {user.email}")
     return Token(access_token=token)
 

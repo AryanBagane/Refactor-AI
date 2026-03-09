@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
     FileText, History, LogOut,
-    Menu, X, ChevronRight, BarChart3
+    Menu, X, ChevronRight, BarChart3, User
 } from 'lucide-react'
 
 const navItems = [
@@ -13,9 +13,10 @@ const navItems = [
 ]
 
 export default function Sidebar() {
-    const { logout } = useAuth()
+    const { logout, user } = useAuth()
     const location = useLocation()
     const [mobileOpen, setMobileOpen] = useState(false)
+    const [showEmail, setShowEmail] = useState(false)
 
     const isActive = (path) => location.pathname === path
 
@@ -52,7 +53,7 @@ export default function Sidebar() {
                 {/* Brand */}
                 <div className="sidebar-brand">
                     <img src="/refactorai_logo_name.png" alt="Refactor AI" className="h-9 object-contain" />
-                    <span className="sidebar-brand-text">Refactor AI</span>
+                    <span className="sidebar-brand-name">Refactor AI</span>
                 </div>
 
                 {/* Section label */}
@@ -83,6 +84,21 @@ export default function Sidebar() {
 
                 {/* Bottom section */}
                 <div className="sidebar-bottom">
+                    <div className="sidebar-profile-container">
+                        <button
+                            onClick={() => setShowEmail(!showEmail)}
+                            className="sidebar-profile-btn"
+                        >
+                            <User style={{ width: 18, height: 18 }} />
+                            <span>Profile</span>
+                        </button>
+                        {showEmail && user?.email && (
+                            <div className="sidebar-email-popover animate-fade-in">
+                                {user.email}
+                            </div>
+                        )}
+                    </div>
+                
                     <button
                         onClick={() => {
                             setMobileOpen(false)

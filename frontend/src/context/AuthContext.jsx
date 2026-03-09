@@ -5,9 +5,29 @@ import api from '../services/api'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-    const [token, setToken] = useState(localStorage.getItem('refactor_ai_token'))
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(false)
+    const decodeToken = (token) => {
+        if (!token) return null;
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const initialToken = localStorage.getItem('refactor_ai_token');
+    const [token, setToken] = useState(initialToken);
+    
+    // Initialize user state from decoded token
+    const initialUser = initialToken ? (decodeToken(initialToken)?.email ? { email: decodeToken(initialToken).email } : null) : null;
+    const [user, setUser] = useState(initialUser);
+    
+    const [loading, setLoading] = useState(false);
 
     const isAuthenticated = !!token
 
@@ -18,7 +38,8 @@ export function AuthProvider({ children }) {
             const { access_token } = response.data
             localStorage.setItem('refactor_ai_token', access_token)
             setToken(access_token)
-            setUser({ email })
+            const decoded = decodeToken(access_token)
+            setUser(decoded?.email ? { email: decoded.email } : { email })
             return { success: true }
         } catch (error) {
             const message = error.response?.data?.detail || 'Login failed'
@@ -35,7 +56,8 @@ export function AuthProvider({ children }) {
             const { access_token } = response.data
             localStorage.setItem('refactor_ai_token', access_token)
             setToken(access_token)
-            setUser({ email })
+            const decoded = decodeToken(access_token)
+            setUser(decoded?.email ? { email: decoded.email } : { email })
             return { success: true }
         } catch (error) {
             const message = error.response?.data?.detail || 'Signup failed'
